@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Citadel of Ricks - Dashboard</title>
+    <style>
+        :root {
+            --portal-green: #2ecc71;
+            --meeseeks-blue: #00bfff;
+            --plumbus-pink: #ff9ff3;
+            --dark-bg: #0f0f12;
+            --panel-bg: rgba(255, 255, 255, 0.07);
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: #e0e0e0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0; padding: 20px;
+            transition: 0.3s;
+            overflow-x: hidden;
+        }
+
+        /* Feature 1: Snowball Mode (Cybernetic Overlay) */
+        body.snowball-mode {
+            filter: invert(1) hue-rotate(180deg);
+            background-color: #fff;
+        }
+
+        h1 { color: var(--portal-green); text-transform: uppercase; letter-spacing: 5px; }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: var(--panel-bg);
+            border: 1px solid #444;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            transition: transform 0.2s;
+        }
+        .card:hover { border-color: var(--portal-green); transform: translateY(-5px); }
+
+        button {
+            background: var(--portal-green);
+            border: none; padding: 10px 15px;
+            color: #000; font-weight: bold;
+            cursor: pointer; border-radius: 5px;
+            margin: 5px;
+        }
+
+        input {
+            background: #222; border: 1px solid var(--portal-green);
+            color: white; padding: 8px; border-radius: 5px; width: 80%;
+        }
+
+        /* Animations */
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        .spinner { animation: spin 2s linear infinite; display: inline-block; }
+
+        /* Butter Robot */
+        #butter-task { font-style: italic; color: #aaa; margin-top: 10px; }
+        
+        /* Meeseeks Arena */
+        #arena { display: flex; flex-wrap: wrap; gap: 5px; min-height: 50px; margin-top: 10px; }
+        .meeseek { background: var(--meeseeks-blue); padding: 5px 10px; border-radius: 15px; color: black; font-size: 12px; cursor: pointer; }
+
+        /* Hidden Morty */
+        #morty-sensor { font-size: 10px; color: #444; }
+    </style>
+</head>
+<body>
+
+    <center>
+        <h1>Citadel OS <small style="font-size: 12px;">v3.1.4</small></h1>
+        <p>Welcome, Rick C-137. Your liver is currently 84% toxic.</p>
+    </center>
+
+    <div class="dashboard">
+
+        <div class="card">
+            <h3>1. Council ID Generator</h3>
+            <p>Generate a new Rick identity:</p>
+            <div id="rick-id" style="font-weight: bold; color: var(--portal-green);">---</div>
+            <button onclick="genRick()">Generate Identity</button>
+        </div>
+
+        <div class="card">
+            <h3>2. Portal Fluid Level</h3>
+            <div style="background: #333; height: 20px; border-radius: 10px; overflow: hidden;">
+                <div id="fluid-bar" style="background: var(--portal-green); width: 65%; height: 100%; transition: 1s;"></div>
+            </div>
+            <p id="fluid-status">65% - Refill required soon.</p>
+            <button onclick="refillFluid()">Steal Fluid</button>
+        </div>
+
+        <div class="card">
+            <h3>3. Morty Insurance</h3>
+            <p>How many Mortys did you lose?</p>
+            <input type="number" id="morty-count" placeholder="0">
+            <button onclick="calcLiability()">Calculate Debt</button>
+            <p id="debt-msg"></p>
+        </div>
+
+        <div class="card">
+            <h3>4. Butter Robot</h3>
+            <p>"What is my purpose?"</p>
+            <button onclick="givePurpose()">Give Purpose</button>
+            <div id="butter-task">Waiting...</div>
+        </div>
+
+        <div class="card">
+            <h3>5. Meeseeks Box</h3>
+            <button style="background: var(--meeseeks-blue);" onclick="spawnMeeseeks()">Press Button</button>
+            <div id="arena"></div>
+        </div>
+
+        <div class="card">
+            <h3>6. Snuffles Enhancement</h3>
+            <p>Give the dog his helmet.</p>
+            <button style="background: white;" onclick="toggleSnowball()">"Where are my testicles?"</button>
+        </div>
+
+        <div class="card" style="background: #000;">
+            <h3>7. Satellite Feed</h3>
+            <div id="tv-screen" style="height: 60px; display: flex; align-items: center; justify-content: center; border: 2px solid #333;">
+                <span class="spinner">🌀</span> Scanning Channels...
+            </div>
+            <button onclick="scanTV()">Sync Feed</button>
+        </div>
+
+        <div class="card">
+            <h3>8. Brainalyzer Shield</h3>
+            <p>Shield is: <b id="shield-status" style="color: red;">OFFLINE</b></p>
+            <button onclick="toggleShield()">Toggle Shield</button>
+        </div>
+
+        <div class="card">
+            <h3>9. Microverse Battery</h3>
+            <p>Energy generated by tiny people.</p>
+            <button onclick="batteryHeist()">Force Work</button>
+            <p id="battery-out">Output: 0.00 tera-watts</p>
+        </div>
+
+        <div class="card">
+            <h3>10. Plumbus Config</h3>
+            <label>Schleem Level:</label>
+            <input type="range" min="0" max="100" value="40">
+            <p>Status: <span style="color: var(--plumbus-pink);">Dinglebop is smoothed.</span></p>
+        </div>
+
+    </div>
+
+    <div id="morty-sensor" style="margin-top: 50px;">
+        Morty Sensor: 0% Probability of useful contribution.
+    </div>
+
+    <script>
+        // 1. Council ID
+        function genRick() {
+            const types = ["Toxic", "Pickle", "Tall", "Doofus", "Cronenberg", "Wasp", "Cyborg"];
+            const res = types[Math.floor(Math.random()*types.length)] + " Rick - Dimension " + (Math.floor(Math.random()*900)+100);
+            document.getElementById('rick-id').innerText = res;
+        }
+
+        // 2. Fluid
+        function refillFluid() {
+            document.getElementById('fluid-bar').style.width = "100%";
+            document.getElementById('fluid-status').innerText = "100% - Ready to party!";
+            setTimeout(() => {
+                document.getElementById('fluid-bar').style.width = "40%";
+                document.getElementById('fluid-status').innerText = "40% - Rick used it to visit a blender dimension.";
+            }, 3000);
+        }
+
+        // 3. Debt
+        function calcLiability() {
+            const count = document.getElementById('morty-count').value;
+            const debt = count * 250000;
+            document.getElementById('debt-msg').innerText = "You owe the Citadel " + debt.toLocaleString() + " Flurbos.";
+        }
+
+        // 4. Butter Robot
+        function givePurpose() {
+            const tasks = ["Pass the butter.", "Pass the butter.", "Pass the butter.", "Existential dread.", "Pass the salt."];
+            document.getElementById('butter-task').innerText = tasks[Math.floor(Math.random()*tasks.length)];
+            setTimeout(() => { alert("Oh my god."); }, 500);
+        }
+
+        // 5. Meeseeks
+        function spawnMeeseeks() {
+            const meeseek = document.createElement("div");
+            meeseek.className = "meeseek";
+            meeseek.innerText = "I'm Mr. Meeseeks!";
+            meeseek.onclick = function() { this.remove(); };
+            document.getElementById('arena').appendChild(meeseek);
+        }
+
+        // 6. Snowball
+        function toggleSnowball() {
+            document.body.classList.toggle('snowball-mode');
+        }
+
+        // 7. TV
+        function scanTV() {
+            const shows = ["Ball Fondlers", "Jan Quadrant Vincent 16", "Man vs Car", "Turbulent Juice"];
+            document.getElementById('tv-screen').innerText = shows[Math.floor(Math.random()*shows.length)];
+        }
+
+        // 8. Shield
+        let shieldOn = false;
+        function toggleShield() {
+            shieldOn = !shieldOn;
+            const status = document.getElementById('shield-status');
+            status.innerText = shieldOn ? "ACTIVE" : "OFFLINE";
+            status.style.color = shieldOn ? "var(--portal-green)" : "red";
+        }
+
+        // 9. Battery
+        function batteryHeist() {
+            let power = (Math.random() * 10).toFixed(2);
+            document.getElementById('battery-out').innerText = "Output: " + power + " tera-watts (Peace among worlds 🖕)";
+        }
+    </script>
+</body>
+</html>
