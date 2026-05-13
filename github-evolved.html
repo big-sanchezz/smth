@@ -1,0 +1,1406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>xX_CodeLord9000_Xx — GitHub</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+<style>
+/* ══════════════════════════════════════════
+   VARIABLES & RESET
+══════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080c10;--surface:#0d1117;--card:#111820;--border:#1e2a38;
+  --green:#00ff88;--green2:#00cc66;--green-dim:#003322;
+  --cyan:#00d4ff;--cyan-dim:#002233;
+  --yellow:#ffcc00;--orange:#ff8c00;
+  --red:#ff3355;--red-dim:#330011;
+  --purple:#bb66ff;--pink:#ff44aa;
+  --text:#c9d1d9;--text-dim:#5a6a7a;
+  --mono:'Share Tech Mono',monospace;
+  --display:'Orbitron',sans-serif;
+  --glow-g:0 0 20px rgba(0,255,136,.4);
+  --glow-c:0 0 20px rgba(0,212,255,.4);
+  --glow-y:0 0 20px rgba(255,204,0,.4);
+}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:var(--mono);font-size:13px;
+  line-height:1.6;overflow-x:hidden;
+  cursor:none;
+}
+
+/* ══════ CURSOR ══════ */
+#cur{
+  position:fixed;width:10px;height:10px;
+  background:var(--green);border-radius:50%;
+  pointer-events:none;z-index:99999;
+  transform:translate(-50%,-50%);
+  transition:width .15s,height .15s,background .15s;
+  box-shadow:var(--glow-g);
+}
+#cur2{
+  position:fixed;width:30px;height:30px;
+  border:1px solid var(--cyan);border-radius:50%;
+  pointer-events:none;z-index:99998;
+  transform:translate(-50%,-50%);
+  transition:all .08s ease;
+  opacity:.6;
+}
+
+/* ══════ CANVAS BG ══════ */
+#bgCanvas{position:fixed;inset:0;z-index:0;opacity:.12;pointer-events:none}
+
+/* ══════ SCANLINES ══════ */
+body::after{
+  content:'';position:fixed;inset:0;z-index:9990;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.07) 3px,rgba(0,0,0,.07) 4px);
+}
+
+/* ══════ BOOT SCREEN ══════ */
+#boot{
+  position:fixed;inset:0;z-index:99997;
+  background:#000;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  font-family:var(--mono);color:var(--green);
+  transition:opacity .6s;
+}
+#boot.gone{opacity:0;pointer-events:none}
+#boot-log{font-size:12px;line-height:2;text-align:left;width:440px;max-width:90vw}
+#boot-bar-wrap{width:440px;max-width:90vw;height:6px;background:#111;border:1px solid #333;border-radius:3px;margin-top:14px;overflow:hidden}
+#boot-bar{height:100%;width:0;background:linear-gradient(90deg,var(--green2),var(--green));border-radius:3px;transition:width .3s}
+#boot-skip{margin-top:18px;font-size:11px;color:var(--text-dim);cursor:pointer;text-decoration:underline}
+
+/* ══════ NOTIFICATION BELL ══════ */
+#notif-bell{
+  position:fixed;top:18px;right:70px;z-index:9995;
+  font-size:1.3rem;cursor:pointer;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:8px;padding:6px 10px;
+  transition:box-shadow .2s;
+  display:flex;align-items:center;gap:6px;
+}
+#notif-bell:hover{box-shadow:var(--glow-c)}
+#notif-count{
+  background:var(--red);color:#fff;font-size:.6rem;
+  border-radius:10px;padding:1px 5px;font-weight:bold;
+}
+#notif-dropdown{
+  position:fixed;top:58px;right:70px;z-index:9996;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:8px;width:280px;
+  box-shadow:0 8px 32px rgba(0,0,0,.6);
+  display:none;overflow:hidden;
+}
+#notif-dropdown.open{display:block;animation:slideDown .2s ease}
+@keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.notif-header{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--cyan);font-size:.75rem}
+.notif-item{
+  padding:10px 14px;border-bottom:1px solid var(--border);
+  font-size:.72rem;color:var(--text-dim);cursor:pointer;
+  transition:background .15s;display:flex;gap:8px;align-items:flex-start;
+}
+.notif-item:hover{background:rgba(255,255,255,.03)}
+.notif-icon{font-size:1rem;flex-shrink:0}
+.notif-item.unread .notif-text{color:var(--text)}
+
+/* ══════ THEME TOGGLE ══════ */
+#theme-btn{
+  position:fixed;top:18px;right:18px;z-index:9995;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:8px;padding:6px 10px;cursor:pointer;
+  font-size:1.1rem;transition:box-shadow .2s;
+}
+#theme-btn:hover{box-shadow:var(--glow-y)}
+body.light-mode{--bg:#f0f4f8;--surface:#ffffff;--card:#f8fafc;--border:#d0d7de;--text:#24292f;--text-dim:#57606a;--green:#1a7f37;--cyan:#0969da;--card:#fff}
+
+/* ══════ NAV ══════ */
+nav{
+  position:sticky;top:0;z-index:500;
+  background:rgba(8,12,16,.85);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  padding:10px 24px;
+  display:flex;align-items:center;gap:16px;
+  flex-wrap:wrap;
+}
+.nav-logo{font-family:var(--display);font-size:.9rem;color:var(--green);letter-spacing:2px;text-shadow:var(--glow-g)}
+.nav-tabs{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap}
+.nav-tab{
+  padding:5px 12px;border-radius:6px;font-size:.72rem;
+  color:var(--text-dim);cursor:pointer;border:1px solid transparent;
+  transition:all .2s;white-space:nowrap;
+}
+.nav-tab:hover,.nav-tab.active{color:var(--text);background:var(--card);border-color:var(--border)}
+.nav-tab .badge{
+  display:inline-block;background:var(--border);color:var(--text-dim);
+  font-size:.6rem;padding:0 5px;border-radius:10px;margin-left:4px;
+}
+
+/* ══════ HEADER ══════ */
+header{
+  position:relative;z-index:2;
+  padding:40px 24px 30px;
+  border-bottom:1px solid var(--border);
+  background:linear-gradient(180deg,rgba(0,255,136,.04) 0%,transparent 100%);
+}
+.header-inner{max-width:980px;margin:0 auto;display:flex;gap:28px;flex-wrap:wrap;align-items:flex-start}
+
+/* avatar */
+.avatar-zone{display:flex;flex-direction:column;align-items:center;gap:10px;min-width:130px}
+.avatar-frame{
+  position:relative;width:128px;height:128px;
+  border-radius:50%;cursor:pointer;
+}
+.avatar-ring{
+  position:absolute;inset:-4px;border-radius:50%;
+  border:2px solid transparent;
+  background:linear-gradient(135deg,var(--green),var(--cyan),var(--purple)) border-box;
+  -webkit-mask:linear-gradient(#fff 0 0) padding-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite:destination-out;mask-composite:exclude;
+  animation:spin 4s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.avatar-inner{
+  position:relative;z-index:1;width:100%;height:100%;
+  border-radius:50%;background:var(--card);
+  display:flex;align-items:center;justify-content:center;
+  font-size:64px;
+  transition:transform .3s;
+}
+.avatar-frame:hover .avatar-inner{transform:scale(1.08) rotate(-5deg)}
+.avatar-level{
+  position:absolute;bottom:2px;right:2px;
+  background:var(--yellow);color:#000;
+  font-size:.55rem;font-weight:700;
+  padding:2px 6px;border-radius:10px;z-index:2;
+}
+.status-pill{
+  background:#0a1f10;color:var(--green);
+  border:1px solid var(--green-dim);border-radius:20px;
+  padding:3px 10px;font-size:.65rem;
+  display:flex;align-items:center;gap:5px;
+}
+.status-dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+
+/* profile info */
+.profile-info{flex:1;min-width:220px}
+.username{
+  font-family:var(--display);font-size:2rem;
+  color:var(--cyan);letter-spacing:3px;
+  text-shadow:var(--glow-c);
+  display:inline-block;
+  overflow:hidden;white-space:nowrap;border-right:2px solid var(--cyan);
+}
+.fullname{color:var(--text-dim);font-size:.85rem;margin:.4rem 0 .2rem}
+.bio-text{color:var(--text);font-size:.8rem;margin-bottom:12px;line-height:1.8}
+.bio-text .hilite{color:var(--yellow)}
+
+/* badges */
+.badges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.badge-item{
+  font-size:.6rem;padding:3px 8px;border-radius:4px;
+  border:1px solid;font-weight:700;letter-spacing:.05em;
+}
+
+/* stats */
+.stat-row{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+.stat-box{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:8px;padding:10px 16px;text-align:center;min-width:80px;
+  cursor:pointer;transition:border-color .2s,box-shadow .2s;
+}
+.stat-box:hover{border-color:var(--cyan);box-shadow:var(--glow-c)}
+.stat-num{font-family:var(--display);font-size:1.5rem;color:var(--yellow);display:block;line-height:1}
+.stat-lbl{font-size:.6rem;color:var(--text-dim);margin-top:3px;line-height:1.3}
+
+/* links */
+.profile-links{display:flex;gap:12px;flex-wrap:wrap;font-size:.72rem;color:var(--text-dim)}
+.profile-links a{color:var(--cyan);text-decoration:none}
+.profile-links a:hover{text-decoration:underline}
+
+/* ══════ MAIN ══════ */
+main{max-width:980px;margin:0 auto;padding:28px 24px;position:relative;z-index:2}
+
+/* section titles */
+.sec-title{
+  font-family:var(--display);font-size:1rem;letter-spacing:2px;
+  color:var(--green);margin-bottom:16px;
+  display:flex;align-items:center;gap:10px;
+}
+.sec-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent)}
+.sec-icon{font-size:1.1rem}
+
+/* ══════ PINNED REPOS ══════ */
+.repo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:32px}
+.repo-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:10px;padding:16px;position:relative;
+  transition:border-color .2s,box-shadow .2s,transform .2s;
+  overflow:hidden;cursor:pointer;
+}
+.repo-card::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,transparent 60%,rgba(0,255,136,.03));
+  pointer-events:none;
+}
+.repo-card:hover{border-color:var(--cyan);box-shadow:var(--glow-c);transform:translateY(-3px)}
+.repo-card:hover::before{background:linear-gradient(135deg,transparent 50%,rgba(0,212,255,.05))}
+.rc-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.rc-icon{font-size:1rem}
+.rc-name{color:var(--cyan);font-size:.82rem;font-weight:700;flex:1}
+.rc-private{font-size:.6rem;background:#1a0f00;color:var(--orange);border:1px solid var(--orange);border-radius:10px;padding:1px 6px}
+.rc-desc{font-size:.73rem;color:var(--text-dim);margin-bottom:10px;min-height:2.5em}
+.rc-meta{display:flex;gap:12px;font-size:.68rem;color:var(--text-dim);flex-wrap:wrap}
+.rc-lang{display:flex;align-items:center;gap:4px}
+.lang-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.rc-stars,.rc-forks{display:flex;align-items:center;gap:3px}
+.rc-tag{
+  position:absolute;top:10px;right:10px;
+  font-size:.58rem;padding:2px 6px;border-radius:3px;
+  font-weight:700;letter-spacing:.05em;
+}
+.tag-fire{background:#1a0800;color:var(--orange);border:1px solid var(--orange)}
+.tag-rip{background:#1a0010;color:var(--red);border:1px solid var(--red)}
+.tag-wip{background:#1a1000;color:var(--yellow);border:1px solid var(--yellow)}
+.tag-wow{background:#000d1a;color:var(--cyan);border:1px solid var(--cyan)}
+.tag-sus{background:#100a1a;color:var(--purple);border:1px solid var(--purple)}
+.rc-progress{margin-top:8px}
+.rc-prog-label{font-size:.6rem;color:var(--text-dim);margin-bottom:3px}
+.rc-prog-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.rc-prog-fill{height:100%;border-radius:2px;transition:width 1.2s cubic-bezier(.22,1,.36,1);width:0}
+
+/* ══════ CONTRIBUTION GRAPH ══════ */
+#contrib-section{margin-bottom:32px}
+.contrib-controls{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.contrib-btn{
+  font-size:.65rem;padding:4px 10px;border-radius:4px;cursor:pointer;
+  background:var(--card);border:1px solid var(--border);color:var(--text-dim);
+  transition:all .2s;
+}
+.contrib-btn:hover,.contrib-btn.active{color:var(--green);border-color:var(--green);box-shadow:0 0 8px rgba(0,255,136,.2)}
+.contrib-wrap{overflow-x:auto;padding-bottom:8px}
+.contrib-meta{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+.contrib-total{font-size:.72rem;color:var(--text-dim)}
+.contrib-total span{color:var(--green)}
+.contrib-legend{display:flex;align-items:center;gap:4px;font-size:.62rem;color:var(--text-dim)}
+.legend-cell{width:10px;height:10px;border-radius:2px}
+#contrib-grid{display:grid;grid-template-rows:repeat(7,12px);grid-auto-flow:column;gap:2px;width:fit-content;min-width:100%}
+.cc{
+  width:12px;height:12px;border-radius:2px;cursor:pointer;
+  transition:transform .1s,outline .1s;flex-shrink:0;
+}
+.cc:hover{transform:scale(1.5);outline:1.5px solid var(--cyan);outline-offset:1px;z-index:5;position:relative}
+.contrib-tooltip{
+  position:fixed;z-index:9999;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:6px;padding:6px 10px;font-size:.68rem;
+  pointer-events:none;opacity:0;transition:opacity .15s;
+  max-width:220px;line-height:1.5;box-shadow:0 4px 16px rgba(0,0,0,.5);
+}
+.contrib-tooltip.show{opacity:1}
+
+/* ══════ COMMIT LOG ══════ */
+#commit-section{margin-bottom:32px}
+.commit-filters{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.cf-btn{
+  font-size:.62rem;padding:3px 8px;border-radius:4px;cursor:pointer;
+  background:var(--card);border:1px solid var(--border);color:var(--text-dim);
+  transition:all .15s;
+}
+.cf-btn:hover,.cf-btn.active{color:var(--yellow);border-color:var(--yellow)}
+.commit-list{display:flex;flex-direction:column;gap:6px}
+.commit-item{
+  display:flex;align-items:baseline;gap:10px;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:6px;padding:8px 14px;font-size:.75rem;
+  transition:border-color .2s,transform .1s;cursor:pointer;
+  position:relative;overflow:hidden;
+}
+.commit-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:2px 0 0 2px}
+.commit-item.type-feat::before{background:var(--cyan)}
+.commit-item.type-fix::before{background:var(--green)}
+.commit-item.type-hotfix::before{background:var(--red)}
+.commit-item.type-chore::before{background:var(--text-dim)}
+.commit-item.type-style::before{background:var(--purple)}
+.commit-item:hover{border-color:var(--green);transform:translateX(3px)}
+.ch{color:var(--yellow);font-size:.65rem;flex-shrink:0;font-family:var(--mono)}
+.cm{color:var(--text);flex:1}
+.ct{color:var(--text-dim);font-size:.62rem;flex-shrink:0;white-space:nowrap}
+.ctype{
+  font-size:.58rem;padding:1px 5px;border-radius:3px;flex-shrink:0;
+  font-weight:700;
+}
+.ctype.feat{background:var(--cyan-dim);color:var(--cyan)}
+.ctype.fix{background:var(--green-dim);color:var(--green)}
+.ctype.hotfix{background:var(--red-dim);color:var(--red)}
+.ctype.chore{background:#1a1a1a;color:var(--text-dim)}
+.ctype.style{background:#150a20;color:var(--purple)}
+.show-more-btn{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:6px;padding:8px;text-align:center;
+  color:var(--text-dim);font-size:.72rem;cursor:pointer;
+  transition:all .2s;margin-top:6px;
+}
+.show-more-btn:hover{border-color:var(--green);color:var(--green)}
+
+/* ══════ SKILL BARS ══════ */
+#skills-section{margin-bottom:32px}
+.skills-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(400px,1fr));gap:10px}
+.skill-row{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px 16px}
+.skill-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.skill-name{font-size:.78rem;color:var(--text)}
+.skill-note{font-size:.65rem;color:var(--text-dim);font-style:italic}
+.skill-pct{font-family:var(--display);font-size:.9rem;color:var(--yellow)}
+.skill-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.skill-fill{height:100%;width:0;border-radius:3px;transition:width 1.6s cubic-bezier(.22,1,.36,1)}
+
+/* ══════ ACHIEVEMENTS ══════ */
+#achieve-section{margin-bottom:32px}
+.achieve-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.achieve-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:10px;padding:14px;text-align:center;
+  cursor:pointer;transition:all .2s;position:relative;
+  overflow:hidden;
+}
+.achieve-card.locked{opacity:.4;filter:grayscale(1)}
+.achieve-card:not(.locked):hover{border-color:var(--yellow);box-shadow:var(--glow-y);transform:translateY(-2px)}
+.achieve-icon{font-size:2rem;display:block;margin-bottom:6px}
+.achieve-name{font-size:.68rem;color:var(--text);font-weight:700;margin-bottom:3px}
+.achieve-desc{font-size:.58rem;color:var(--text-dim);line-height:1.4}
+.achieve-card .shine{
+  position:absolute;inset:0;
+  background:linear-gradient(135deg,transparent 40%,rgba(255,255,255,.04) 50%,transparent 60%);
+  transform:translateX(-100%);transition:transform .5s;
+}
+.achieve-card:not(.locked):hover .shine{transform:translateX(100%)}
+
+/* ══════ LANGUAGE CHART ══════ */
+#lang-section{margin-bottom:32px}
+.lang-layout{display:flex;gap:24px;align-items:center;flex-wrap:wrap}
+#lang-canvas{border-radius:50%;flex-shrink:0}
+.lang-legend{flex:1;display:flex;flex-direction:column;gap:7px;min-width:160px}
+.lang-item{display:flex;align-items:center;gap:8px;font-size:.73rem;cursor:pointer;padding:4px 8px;border-radius:4px;transition:background .15s}
+.lang-item:hover{background:rgba(255,255,255,.04)}
+.lang-dot-big{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.lang-name{flex:1;color:var(--text)}
+.lang-pct{color:var(--yellow);font-family:var(--display);font-size:.8rem}
+.lang-pct-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:3px}
+.lang-pct-fill{height:100%;border-radius:2px;transition:width 1.4s ease}
+
+/* ══════ TERMINAL ══════ */
+#terminal-section{margin-bottom:32px}
+.terminal-win{
+  background:#000;border:1px solid var(--border);
+  border-radius:10px;overflow:hidden;
+  box-shadow:0 8px 32px rgba(0,0,0,.5);
+}
+.term-bar{
+  display:flex;align-items:center;gap:6px;
+  background:#1a1a1a;padding:8px 14px;
+  border-bottom:1px solid var(--border);
+}
+.term-dot{width:10px;height:10px;border-radius:50%}
+.term-title{flex:1;text-align:center;font-size:.65rem;color:var(--text-dim)}
+.term-body{
+  padding:14px;min-height:200px;max-height:300px;
+  overflow-y:auto;font-size:.75rem;line-height:1.8;
+}
+.term-line{display:flex;gap:6px;flex-wrap:wrap}
+.term-prompt{color:var(--green)}
+.term-cmd{color:var(--cyan)}
+.term-out{color:var(--text-dim);padding-left:16px}
+.term-out.err{color:var(--red)}
+.term-out.ok{color:var(--green)}
+.term-input-row{display:flex;align-items:center;gap:6px;padding:8px 14px;border-top:1px solid var(--border);background:#050505}
+.term-prompt-static{color:var(--green);font-size:.75rem;flex-shrink:0}
+#term-input{
+  flex:1;background:transparent;border:none;outline:none;
+  color:var(--text);font-family:var(--mono);font-size:.75rem;
+  caret-color:var(--green);
+}
+
+/* ══════ AI ROAST MACHINE ══════ */
+#roast-section{margin-bottom:32px}
+.roast-box{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:10px;overflow:hidden;
+}
+.roast-top{
+  display:flex;align-items:center;gap:10px;
+  padding:14px 18px;border-bottom:1px solid var(--border);
+  background:linear-gradient(90deg,rgba(255,51,85,.06),transparent);
+}
+.roast-avatar{font-size:1.8rem}
+.roast-meta{flex:1}
+.roast-name{font-size:.8rem;color:var(--red);font-weight:700}
+.roast-sub{font-size:.65rem;color:var(--text-dim)}
+.roast-body{padding:18px;min-height:80px;font-size:.8rem;line-height:1.8;color:var(--text)}
+.roast-typing{display:none;align-items:center;gap:4px}
+.roast-typing.show{display:flex}
+.typing-dot{
+  width:6px;height:6px;border-radius:50%;background:var(--red);
+  animation:tdot 1s infinite;
+}
+.typing-dot:nth-child(2){animation-delay:.15s}
+.typing-dot:nth-child(3){animation-delay:.3s}
+@keyframes tdot{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+.roast-actions{display:flex;gap:8px;padding:12px 18px;border-top:1px solid var(--border);flex-wrap:wrap}
+.roast-btn{
+  font-size:.68rem;padding:6px 14px;border-radius:6px;cursor:pointer;
+  border:1px solid;transition:all .2s;
+}
+.roast-btn.primary{background:var(--red-dim);color:var(--red);border-color:var(--red)}
+.roast-btn.primary:hover{background:var(--red);color:#fff;box-shadow:0 0 16px rgba(255,51,85,.4)}
+.roast-btn.secondary{background:transparent;color:var(--text-dim);border-color:var(--border)}
+.roast-btn.secondary:hover{color:var(--text);border-color:var(--text-dim)}
+
+/* ══════ README EASTER EGG ══════ */
+#readme-section{margin-bottom:32px}
+.readme-box{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:10px;padding:20px 24px;
+  font-size:.78rem;line-height:2;
+}
+.readme-box h1{font-family:var(--display);font-size:1.2rem;color:var(--cyan);margin-bottom:10px;letter-spacing:2px}
+.readme-box h3{font-size:.85rem;color:var(--green);margin:14px 0 6px;border-left:2px solid var(--green);padding-left:8px}
+.readme-box p{color:var(--text-dim);margin-bottom:6px}
+.readme-box .strike{text-decoration:line-through;color:var(--text-dim);opacity:.5}
+.readme-box .hl{color:var(--yellow)}
+.readme-prog-wrap{margin:10px 0}
+.readme-prog{display:flex;gap:6px;align-items:center;margin-bottom:4px;font-size:.72rem}
+.rp-label{width:120px;color:var(--text-dim)}
+.rp-bar{flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden}
+.rp-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--green2),var(--green));transition:width 1.5s ease;width:0}
+.rp-val{width:30px;text-align:right;color:var(--yellow)}
+.gif-placeholder{
+  background:var(--border);border-radius:8px;
+  height:60px;display:flex;align-items:center;justify-content:center;
+  color:var(--text-dim);font-size:.7rem;margin:10px 0;
+  border:2px dashed var(--border);
+  animation:glow-border 3s infinite;
+}
+@keyframes glow-border{0%,100%{border-color:var(--border)}50%{border-color:var(--green-dim)}}
+
+/* ══════ STREAK ══════ */
+#streak-section{margin-bottom:32px}
+.streak-wrap{
+  display:flex;gap:16px;flex-wrap:wrap;
+}
+.streak-card{
+  flex:1;min-width:160px;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:10px;padding:16px;text-align:center;
+  position:relative;overflow:hidden;
+}
+.streak-card::after{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at 50% 0%,rgba(0,255,136,.07),transparent 60%);
+  pointer-events:none;
+}
+.streak-num{
+  font-family:var(--display);font-size:2.5rem;color:var(--green);
+  line-height:1;text-shadow:var(--glow-g);
+}
+.streak-label{font-size:.65rem;color:var(--text-dim);margin-top:4px}
+.streak-icon{font-size:1.5rem;margin-bottom:4px;display:block}
+
+/* ══════ TOAST ══════ */
+#toast{
+  position:fixed;bottom:24px;left:50%;
+  transform:translateX(-50%) translateY(80px);
+  background:var(--card);border:1px solid var(--green);
+  color:var(--green);font-family:var(--mono);font-size:.75rem;
+  padding:8px 20px;border-radius:6px;z-index:99999;
+  transition:transform .3s,opacity .3s;opacity:0;pointer-events:none;
+  white-space:nowrap;box-shadow:var(--glow-g);
+}
+#toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+
+/* ══════ MODAL ══════ */
+#modal-overlay{
+  position:fixed;inset:0;z-index:9993;background:rgba(0,0,0,.7);
+  display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);
+}
+#modal-overlay.open{display:flex;animation:fadein .2s}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+#modal{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;width:480px;max-width:92vw;max-height:80vh;overflow-y:auto;
+  box-shadow:0 16px 64px rgba(0,0,0,.6);
+}
+.modal-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 20px;border-bottom:1px solid var(--border);
+}
+.modal-title{font-family:var(--display);font-size:.9rem;color:var(--cyan);letter-spacing:1px}
+.modal-close{background:none;border:none;color:var(--text-dim);font-size:1.2rem;cursor:pointer;transition:color .2s}
+.modal-close:hover{color:var(--red)}
+.modal-body{padding:20px}
+.modal-body p{font-size:.78rem;color:var(--text-dim);line-height:1.8;margin-bottom:10px}
+.modal-body .modal-hl{color:var(--yellow)}
+
+/* ══════ FOOTER ══════ */
+footer{
+  text-align:center;padding:24px;border-top:1px solid var(--border);
+  color:var(--text-dim);font-size:.68rem;position:relative;z-index:2;
+}
+.footer-ascii{
+  font-size:.5rem;line-height:1.2;color:#1e3a2a;
+  margin-bottom:10px;letter-spacing:2px;
+  font-family:var(--mono);
+}
+
+/* ══════ SCROLLBAR ══════ */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--green)}
+
+/* ══════ RESPONSIVE ══════ */
+@media(max-width:600px){
+  .username{font-size:1.3rem}
+  .stat-row{gap:8px}
+  .stat-box{min-width:60px;padding:8px 10px}
+  .stat-num{font-size:1.2rem}
+  nav{padding:8px 14px}
+  .skills-grid{grid-template-columns:1fr}
+  #lang-canvas{width:140px!important;height:140px!important}
+}
+</style>
+</head>
+<body>
+
+<!-- CURSOR -->
+<div id="cur"></div>
+<div id="cur2"></div>
+
+<!-- BG CANVAS -->
+<canvas id="bgCanvas"></canvas>
+
+<!-- BOOT SCREEN -->
+<div id="boot">
+  <div id="boot-log"></div>
+  <div id="boot-bar-wrap"><div id="boot-bar"></div></div>
+  <div id="boot-skip" onclick="skipBoot()">skip →</div>
+</div>
+
+<!-- TOOLTIP -->
+<div class="contrib-tooltip" id="contrib-tooltip"></div>
+
+<!-- NOTIFICATION -->
+<div id="notif-bell" onclick="toggleNotif()">
+  🔔 <span id="notif-count">7</span>
+</div>
+<div id="notif-dropdown">
+  <div class="notif-header">Notifications (7 unread)</div>
+  <div class="notif-item unread"><span class="notif-icon">🔴</span><span class="notif-text"><b>prod-server</b> just DM'd you: "I'm on fire 🔥"</span></div>
+  <div class="notif-item unread"><span class="notif-icon">⭐</span><span class="notif-text">Your ex starred <b>fix-css-please-god</b> (moving on?)</span></div>
+  <div class="notif-item unread"><span class="notif-icon">🍴</span><span class="notif-text">Someone forked <b>definitely-not-passwords</b> 😰</span></div>
+  <div class="notif-item unread"><span class="notif-icon">💬</span><span class="notif-text">Code review: "What is this" × 14 comments</span></div>
+  <div class="notif-item unread"><span class="notif-icon">🤖</span><span class="notif-text">Dependabot found 847 vulnerabilities. Again.</span></div>
+  <div class="notif-item unread"><span class="notif-icon">📧</span><span class="notif-text">Your manager: "Is the prod deploy done yet?"</span></div>
+  <div class="notif-item unread"><span class="notif-icon">⚠️</span><span class="notif-text">CI/CD failed because you forgot a semicolon</span></div>
+</div>
+
+<!-- THEME TOGGLE -->
+<button id="theme-btn" onclick="toggleTheme()" title="Toggle theme">🌙</button>
+
+<!-- NAV -->
+<nav>
+  <span class="nav-logo">⌘ xX_CodeLord9000_Xx</span>
+  <div class="nav-tabs">
+    <div class="nav-tab active" onclick="scrollTo('#overview')">Overview</div>
+    <div class="nav-tab" onclick="scrollTo('#repos-section')">Repositories <span class="badge">∞</span></div>
+    <div class="nav-tab" onclick="scrollTo('#commit-section')">Commits <span class="badge" id="commit-badge">847</span></div>
+    <div class="nav-tab" onclick="scrollTo('#terminal-section')">Terminal</div>
+    <div class="nav-tab" onclick="scrollTo('#roast-section')">Roast Me 🔥</div>
+    <div class="nav-tab" onclick="scrollTo('#readme-section')">README</div>
+  </div>
+</nav>
+
+<!-- HEADER -->
+<header id="overview">
+  <div class="header-inner">
+    <div class="avatar-zone">
+      <div class="avatar-frame" id="avatarFrame" onclick="clickAvatar()">
+        <div class="avatar-ring"></div>
+        <div class="avatar-inner" id="avatarInner">🧑‍💻</div>
+        <div class="avatar-level" id="avatarLevel">LVL 1</div>
+      </div>
+      <div class="status-pill"><div class="status-dot"></div><span id="statusText">Debugging in prod</span></div>
+    </div>
+    <div class="profile-info">
+      <div class="username" id="username">xX_CodeLord9000_Xx</div>
+      <div class="fullname">Real Name: Definitely Not a Stack Overflow Bot</div>
+      <div class="bio-text">
+        <span class="hilite">Full-Stack™</span> developer. I turn ☕ into bugs since 2019.<br>
+        Currently <span class="hilite">rewriting everything in Rust</span> (going well).<br>
+        Committed to <span class="hilite">main</span> at least once. Will do it again.
+      </div>
+      <div class="badges">
+        <div class="badge-item" style="color:var(--yellow);border-color:var(--yellow);background:#1a1400">PRO PROCRASTINATOR</div>
+        <div class="badge-item" style="color:var(--cyan);border-color:var(--cyan);background:var(--cyan-dim)">OPEN SOURCE</div>
+        <div class="badge-item" style="color:var(--red);border-color:var(--red);background:var(--red-dim)">PUSHED TO MAIN</div>
+        <div class="badge-item" style="color:var(--purple);border-color:var(--purple);background:#100a20">10x (unverified)</div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-box" onclick="showModal('followers')"><span class="stat-num" data-target="3">0</span><div class="stat-lbl">Followers<br>(all bots)</div></div>
+        <div class="stat-box" onclick="showModal('following')"><span class="stat-num" data-target="847">0</span><div class="stat-lbl">Following<br>(stalking devs)</div></div>
+        <div class="stat-box" onclick="showModal('commits')"><span class="stat-num" data-target="2391">0</span><div class="stat-lbl">Commits<br>(to main 😬)</div></div>
+        <div class="stat-box" onclick="showModal('tests')"><span class="stat-num" data-target="0">0</span><div class="stat-lbl">Tests<br>Written</div></div>
+        <div class="stat-box" onclick="showModal('coffee')"><span class="stat-num" data-target="9999">0</span><div class="stat-lbl">☕ Consumed<br>(ml/day)</div></div>
+      </div>
+      <div class="profile-links">
+        <span>📍 Works from home (bed)</span>
+        <span>🔗 <a href="#">stackoverflow.com/users/me</a></span>
+        <span>🐦 <a href="#">@still_centering_divs</a></span>
+        <span>📅 Joined: When I rage-quit my last job</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- MAIN -->
+<main>
+
+  <!-- STREAK -->
+  <section id="streak-section">
+    <div class="sec-title"><span class="sec-icon">🔥</span> STREAKS & STATS</div>
+    <div class="streak-wrap">
+      <div class="streak-card"><span class="streak-icon">🔥</span><div class="streak-num" data-target="0" id="streakCur">0</div><div class="streak-label">Current Streak (days)</div></div>
+      <div class="streak-card"><span class="streak-icon">🏆</span><div class="streak-num" data-target="3" id="streakMax">0</div><div class="streak-label">Longest Streak (ever)</div></div>
+      <div class="streak-card"><span class="streak-icon">🌙</span><div class="streak-num" data-target="73" id="streakLate">0</div><div class="streak-label">3AM Commits</div></div>
+      <div class="streak-card"><span class="streak-icon">☕</span><div class="streak-num" data-target="412" id="streakCoffee">0</div><div class="streak-label">Stack Overflow Visits<br>Today</div></div>
+    </div>
+  </section>
+
+  <!-- PINNED REPOS -->
+  <section id="repos-section" style="margin-bottom:32px">
+    <div class="sec-title"><span class="sec-icon">📌</span> PINNED REPOSITORIES</div>
+    <div class="repo-grid" id="repoGrid"></div>
+  </section>
+
+  <!-- CONTRIBUTION GRAPH -->
+  <section id="contrib-section">
+    <div class="sec-title"><span class="sec-icon">🟩</span> CONTRIBUTION GRAPH</div>
+    <div class="contrib-controls">
+      <div class="contrib-btn active" onclick="setContribMode('normal',this)">Normal View</div>
+      <div class="contrib-btn" onclick="setContribMode('truth',this)">Truth Mode 🔍</div>
+      <div class="contrib-btn" onclick="setContribMode('vibes',this)">Vibes Only ✨</div>
+      <div class="contrib-btn" onclick="setContribMode('heatmap',this)">Regret Heatmap 😭</div>
+    </div>
+    <div class="contrib-meta">
+      <div class="contrib-total"><span id="contrib-total-num">2,391</span> contributions in the last year</div>
+      <div class="contrib-legend">
+        Less <div class="legend-cell" style="background:#161b22"></div>
+        <div class="legend-cell" style="background:#003322"></div>
+        <div class="legend-cell" style="background:#006644"></div>
+        <div class="legend-cell" style="background:#00aa66"></div>
+        <div class="legend-cell" style="background:#00ff88"></div> More
+      </div>
+    </div>
+    <div class="contrib-wrap"><div id="contrib-grid"></div></div>
+  </section>
+
+  <!-- COMMITS -->
+  <section id="commit-section">
+    <div class="sec-title"><span class="sec-icon">📝</span> COMMIT LOG</div>
+    <div class="commit-filters">
+      <div class="cf-btn active" onclick="filterCommits('all',this)">All</div>
+      <div class="cf-btn" onclick="filterCommits('feat',this)">feat</div>
+      <div class="cf-btn" onclick="filterCommits('fix',this)">fix</div>
+      <div class="cf-btn" onclick="filterCommits('hotfix',this)">hotfix 🚨</div>
+      <div class="cf-btn" onclick="filterCommits('chore',this)">chore</div>
+      <div class="cf-btn" onclick="filterCommits('style',this)">style</div>
+    </div>
+    <div class="commit-list" id="commitList"></div>
+    <div class="show-more-btn" onclick="loadMoreCommits()">↓ Load more suffering</div>
+  </section>
+
+  <!-- SKILLS -->
+  <section id="skills-section">
+    <div class="sec-title"><span class="sec-icon">📊</span> SKILLS & COMPETENCIES</div>
+    <div class="skills-grid" id="skillsGrid"></div>
+  </section>
+
+  <!-- LANGUAGES -->
+  <section id="lang-section">
+    <div class="sec-title"><span class="sec-icon">🥧</span> LANGUAGES USED</div>
+    <div class="lang-layout">
+      <canvas id="lang-canvas" width="160" height="160"></canvas>
+      <div class="lang-legend" id="langLegend"></div>
+    </div>
+  </section>
+
+  <!-- ACHIEVEMENTS -->
+  <section id="achieve-section">
+    <div class="sec-title"><span class="sec-icon">🏅</span> ACHIEVEMENTS</div>
+    <div class="achieve-grid" id="achieveGrid"></div>
+  </section>
+
+  <!-- TERMINAL -->
+  <section id="terminal-section">
+    <div class="sec-title"><span class="sec-icon">💻</span> INTERACTIVE TERMINAL</div>
+    <div class="terminal-win">
+      <div class="term-bar">
+        <div class="term-dot" style="background:#ff5f57"></div>
+        <div class="term-dot" style="background:#ffbd2e"></div>
+        <div class="term-dot" style="background:#28c940"></div>
+        <div class="term-title">bash — xX_CodeLord9000_Xx — 80×24</div>
+      </div>
+      <div class="term-body" id="termBody"></div>
+      <div class="term-input-row">
+        <span class="term-prompt-static">CodeLord@github:~$</span>
+        <input id="term-input" placeholder="type a command... (try: help)" autocomplete="off" spellcheck="false"/>
+      </div>
+    </div>
+  </section>
+
+  <!-- AI ROAST -->
+  <section id="roast-section">
+    <div class="sec-title"><span class="sec-icon">🔥</span> AI CODE REVIEW BOT</div>
+    <div class="roast-box">
+      <div class="roast-top">
+        <div class="roast-avatar">🤖</div>
+        <div class="roast-meta">
+          <div class="roast-name">CriticBot 3000</div>
+          <div class="roast-sub">Powered by pure disappointment • v9.99 • Always online</div>
+        </div>
+      </div>
+      <div class="roast-body">
+        <div id="roast-text">Click "Roast My Code" to receive a professional code review from CriticBot 3000. Warning: may cause existential crisis.</div>
+        <div class="roast-typing" id="roast-typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>
+      </div>
+      <div class="roast-actions">
+        <div class="roast-btn primary" onclick="getRoast()">🔥 Roast My Code</div>
+        <div class="roast-btn secondary" onclick="getPraise()">🥺 Say Something Nice</div>
+        <div class="roast-btn secondary" onclick="getAdvice()">💡 Give Me Advice</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- README -->
+  <section id="readme-section">
+    <div class="sec-title"><span class="sec-icon">📄</span> README.md</div>
+    <div class="readme-box">
+      <h1>👋 Hi, I'm CodeLord9000</h1>
+      <div class="gif-placeholder">[ imagine a cool typing gif here that I never made ]</div>
+      <h3>🧠 About Me</h3>
+      <p>I am a <span class="hl">passionate developer</span> who <span class="strike">reads documentation</span> Googles everything.</p>
+      <p>My superpower is making <span class="hl">simple problems complicated</span> and then fixing them at 3am.</p>
+      <h3>⚙️ Currently Working On</h3>
+      <p>• <span class="strike">My todo app</span> • <span class="strike">The Rust rewrite</span> • <span class="strike">Proper tests</span> • <span class="hl">Centering this div</span></p>
+      <h3>📈 My Progress This Year</h3>
+      <div class="readme-prog-wrap" id="readme-progs"></div>
+      <h3>📫 How to Reach Me</h3>
+      <p>Open a GitHub issue. I'll close it as "wontfix" and go back to sleep.</p>
+      <h3>⚡ Fun Fact</h3>
+      <p>The first 90% of the code takes 10% of the time. The last 10% takes the other 90%. I live in the last 10%.</p>
+    </div>
+  </section>
+
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-ascii">
+█▀▀ █▀█ █▀▄ █▀▀   █░░ █▀█ █▀█ █▀▄
+█▄▄ █▄█ █▄▀ ██▄   █▄▄ █▄█ █▀▄ █▄▀
+  </div>
+  <p>© xX_CodeLord9000_Xx — Made with ❤️, ☕, and severe sleep deprivation</p>
+  <p style="font-size:.6rem;margin-top:4px;color:#2a3a2a">No production servers were harmed. One was though.</p>
+</footer>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- MODAL -->
+<div id="modal-overlay" onclick="closeModal(event)">
+  <div id="modal">
+    <div class="modal-head">
+      <span class="modal-title" id="modal-title">Stats</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════
+   CURSOR
+══════════════════════════════════════════ */
+const cur=document.getElementById('cur'),cur2=document.getElementById('cur2');
+let mx=0,my=0,cx=0,cy=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px'});
+(function animCur(){cx+=(mx-cx)*.18;cy+=(my-cy)*.18;cur2.style.left=cx+'px';cur2.style.top=cy+'px';requestAnimationFrame(animCur)})();
+document.addEventListener('mousedown',()=>{cur.style.width='6px';cur.style.height='6px'});
+document.addEventListener('mouseup',()=>{cur.style.width='10px';cur.style.height='10px'});
+
+/* ══════ BG MATRIX ══════ */
+(()=>{
+  const cv=document.getElementById('bgCanvas'),ctx=cv.getContext('2d');
+  let cols,drops;
+  const resize=()=>{cv.width=innerWidth;cv.height=innerHeight;cols=Math.floor(cv.width/16);drops=Array(cols).fill(1)};
+  resize();window.addEventListener('resize',resize);
+  const chars='アイウエカキクケコ01アサtestmain//{}[]<>0xDEADBEEF';
+  setInterval(()=>{
+    ctx.fillStyle='rgba(8,12,16,.055)';ctx.fillRect(0,0,cv.width,cv.height);
+    ctx.fillStyle='#00ff88';ctx.font='13px monospace';
+    drops.forEach((y,i)=>{
+      ctx.fillText(chars[Math.floor(Math.random()*chars.length)],i*16,y*16);
+      if(y*16>cv.height&&Math.random()>.975)drops[i]=0;
+      drops[i]++;
+    });
+  },55);
+})();
+
+/* ══════ BOOT SCREEN ══════ */
+const bootLines=[
+  '[OK] Loading dependencies... (node_modules: 847mb)',
+  '[OK] Checking for updates...',
+  '[WARN] 412 vulnerabilities found. Ignoring.',
+  '[OK] Connecting to database...',
+  '[ERR] Database connection failed. Trying again.',
+  '[ERR] Database connection failed. Trying again.',
+  '[OK] Database connection failed successfully.',
+  '[OK] Loading 47 todo-app branches...',
+  '[WARN] git push --force history detected',
+  '[OK] Initializing coffee dependency...',
+  '[OK] Profile loaded. Hiding test coverage: 0%',
+  '[OK] Stack Overflow tab: open',
+  '[OK] xX_CodeLord9000_Xx — READY TO SUFFER',
+];
+let bootIdx=0,bootDone=false;
+function bootStep(){
+  if(bootDone)return;
+  const log=document.getElementById('boot-log');
+  const bar=document.getElementById('boot-bar');
+  if(bootIdx<bootLines.length){
+    const d=document.createElement('div');
+    const line=bootLines[bootIdx];
+    d.style.color=line.startsWith('[ERR]')?'#ff3355':line.startsWith('[WARN]')?'#ffcc00':'#00ff88';
+    d.textContent=line;
+    log.appendChild(d);
+    bar.style.width=((bootIdx+1)/bootLines.length*100)+'%';
+    bootIdx++;
+    setTimeout(bootStep,160+Math.random()*120);
+  }else{
+    setTimeout(()=>{document.getElementById('boot').classList.add('gone');bootDone=true;init()},600);
+  }
+}
+function skipBoot(){bootDone=true;document.getElementById('boot').classList.add('gone');init()}
+setTimeout(bootStep,400);
+
+/* ══════ INIT (runs after boot) ══════ */
+function init(){
+  animateCounters();
+  buildRepos();
+  buildContrib();
+  buildCommits();
+  buildSkills();
+  buildLangChart();
+  buildAchievements();
+  buildReadmeProgs();
+  initTerminal();
+  typeUsername();
+  startStatusCycle();
+  startTitleCycle();
+}
+
+/* ══════ COUNTER ANIMATION ══════ */
+function animateCounters(){
+  document.querySelectorAll('[data-target]').forEach(el=>{
+    const t=+el.dataset.target,dur=1400,s=performance.now();
+    (function tick(now){
+      const p=Math.min((now-s)/dur,1),ease=1-Math.pow(1-p,4);
+      el.textContent=Math.floor(ease*t);
+      if(p<1)requestAnimationFrame(tick);else el.textContent=t.toLocaleString();
+    })(performance.now());
+  });
+}
+
+/* ══════ TYPING USERNAME ══════ */
+function typeUsername(){
+  const el=document.getElementById('username');
+  const text=el.textContent;el.textContent='';
+  let i=0;
+  const t=setInterval(()=>{el.textContent+=text[i++];if(i>=text.length){clearInterval(t);setTimeout(()=>el.style.borderRight='none',500)}},65);
+}
+
+/* ══════ STATUS CYCLE ══════ */
+const statuses=['Debugging in prod','Googling the error','Writing TODO comments','Closing issues as wontfix','rm -rf node_modules','In a meeting about meetings','Blaming the intern','Pushing to main'];
+let sIdx=0;
+function startStatusCycle(){
+  setInterval(()=>{
+    sIdx=(sIdx+1)%statuses.length;
+    const el=document.getElementById('statusText');
+    el.style.opacity=0;
+    setTimeout(()=>{el.textContent=statuses[sIdx];el.style.opacity=1},300);
+    el.style.transition='opacity .3s';
+  },4000);
+}
+
+/* ══════ TITLE CYCLE ══════ */
+const titles=['xX_CodeLord9000_Xx — GitHub','// TODO: write good code','git push --force (oops)','Still centering that div...','Works on my machine™','npm install sanity → 404','3 tabs open: all Stack Overflow','my cat could code better'];
+let tIdx=0;
+function startTitleCycle(){setInterval(()=>{tIdx=(tIdx+1)%titles.length;document.title=titles[tIdx]},4000)}
+
+/* ══════ REPOS ══════ */
+const repos=[
+  {icon:'📁',name:'todo-app-v47',desc:'Revolutionary todo app. Notes from v1-v46 indicate I never finish my todos.',lang:'JavaScript',langColor:'#f0db4f',stars:0,forks:0,updated:'3 years ago',tag:'rip',tagLabel:'ABANDONED',progress:5,progressLabel:'completion'},
+  {icon:'📁',name:'hello-world-2',desc:'TypeScript hello-world. 847 lines of type definitions. Output: "hello world". Worth it.',lang:'TypeScript',langColor:'#3178c6',stars:2,forks:1,updated:'last night (3am)',tag:'wow',tagLabel:'TRENDING'},
+  {icon:'🔒',name:'definitely-not-passwords',desc:'A collection of... notes. Normal notes. Please close this tab.',lang:'HTML',langColor:'#e34c26',stars:0,forks:3,updated:'"private"',tag:'sus',tagLabel:'PRIVATE???',progress:100,progressLabel:'suspicion'},
+  {icon:'📁',name:'fix-css-please-god',desc:'4,200 lines of CSS overrides trying to center a div. The div is not centered.',lang:'CSS',langColor:'#563d7c',stars:412,forks:88,updated:'20 min ago (crying)',tag:'fire',tagLabel:'🔥 HOT'},
+  {icon:'📁',name:'ml-model-for-my-cat',desc:'Neural net trained to predict if my cat is hungry. 34% accuracy. Cat: also 34%.',lang:'Python',langColor:'#3572a5',stars:7,forks:2,updated:'when she meowed',tag:'wip',tagLabel:'SCIENCE'},
+  {icon:'📁',name:'rewrite-in-rust',desc:'README.md created. Borrow checker won round 1. Round 2 scheduled for never.',lang:'Rust',langColor:'#dea584',stars:1,forks:0,updated:'never',tag:'rip',tagLabel:'COPE'},
+  {icon:'📁',name:'ai-powered-coffee-tracker',desc:'Uses ML to predict when I need coffee. Always says yes. 100% accuracy.',lang:'Python',langColor:'#3572a5',stars:34,forks:5,updated:'every 20 min',tag:'fire',tagLabel:'USEFUL'},
+  {icon:'📁',name:'blockchain-todo',desc:'A todo list... on the blockchain. Gas fees: $847. Items completed: 0.',lang:'Solidity',langColor:'#aa6746',stars:0,forks:0,updated:'regretfully',tag:'sus',tagLabel:'WHY'},
+];
+function buildRepos(){
+  const g=document.getElementById('repoGrid');
+  repos.forEach((r,i)=>{
+    const d=document.createElement('div');
+    d.className='repo-card';d.style.animationDelay=(i*80)+'ms';
+    d.style.opacity='0';d.style.animation=`card-in .4s ${i*80}ms forwards`;
+    d.innerHTML=`
+      <div class="rc-top"><span class="rc-icon">${r.icon}</span><span class="rc-name">${r.name}</span>${r.private?'<span class="rc-private">Private</span>':''}</div>
+      <div class="rc-desc">${r.desc}</div>
+      <div class="rc-meta">
+        <div class="rc-lang"><div class="lang-dot" style="background:${r.langColor}"></div>${r.lang}</div>
+        <div class="rc-stars">⭐ ${r.stars}</div>
+        <div class="rc-forks">🍴 ${r.forks}</div>
+        <span style="margin-left:auto;font-style:italic">${r.updated}</span>
+      </div>
+      ${r.progress!=null?`<div class="rc-progress"><div class="rc-prog-label">${r.progressLabel}: ${r.progress}%</div><div class="rc-prog-bar"><div class="rc-prog-fill" style="background:${r.langColor};width:0" data-w="${r.progress}%"></div></div></div>`:''}
+      <div class="rc-tag tag-${r.tag}">${r.tagLabel}</div>`;
+    d.addEventListener('click',()=>showToast(`📁 Opening ${r.name}... just kidding, it's broken.`));
+    g.appendChild(d);
+  });
+  // animate progress bars
+  setTimeout(()=>{
+    document.querySelectorAll('.rc-prog-fill').forEach(el=>{el.style.width=el.dataset.w});
+  },600);
+}
+// card-in keyframe injection
+const ks=document.createElement('style');
+ks.textContent='@keyframes card-in{to{opacity:1;transform:translateY(0)}}';
+document.head.appendChild(ks);
+
+/* ══════ CONTRIBUTION GRAPH ══════ */
+const commitMessages=[
+  'fix: found bug I introduced 3 years ago','feat: added button nobody asked for',
+  'BREAKING: pushed to main at 2am. Sorry.','style: moved semicolon. 4hr decision.',
+  'fix: it was console.log all along','chore: deleted node_modules (200th time)',
+  'feat: dark mode (everything is dark now)','revert: revert of the revert of the revert',
+  'hotfix: production IS ON FIRE 🔥','feat: copy-pasted from Stack Overflow (commented the link)',
+  'fix: the bug was me','perf: removed the one test we had. faster.',
+  'feat: added TODO that will never be done','chore: updated dependencies. broke everything.',
+  'style: changed font for 49th time today','fix: added semicolon. CI passes. No idea why it works.',
+  'feat: wrote a comment (deleted it, too embarrassing)','fix: tried turning off and on again. still broken.',
+  'chore: rm -rf node_modules && npm install (ritual)','feat: AI wrote this. I take credit.',
+];
+const truthMessages=['actually slept','was in meetings','debugging env vars for 6hrs','stackoverflow browsing','crying softly','blaming the intern','coffee run (×4)','pretended to work'];
+const vibesMessages=['✨ vibes only','💅 no notes','🌊 in the flow','🔮 mystical coding','🌙 moon-guided commits','🦋 transformation commit'];
+let contribMode='normal';
+function setContribMode(mode,btn){
+  contribMode=mode;
+  document.querySelectorAll('.contrib-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  buildContrib();
+}
+function buildContrib(){
+  const grid=document.getElementById('contrib-grid');
+  grid.innerHTML='';
+  const weeks=26,days=7;
+  const colors=['#161b22','#003322','#006644','#00aa66','#00ff88'];
+  const regretColors=['#161b22','#1a0000','#330000','#660000','#ff3355'];
+  const vibeColors=['#161b22','#100a20','#201040','#4020aa','#bb66ff'];
+  for(let i=0;i<weeks*days;i++){
+    const cell=document.createElement('div');cell.className='cc';
+    let level,msg,palette;
+    if(contribMode==='truth'){
+      level=Math.random()>.7?0:Math.floor(Math.random()*3);
+      msg=truthMessages[Math.floor(Math.random()*truthMessages.length)];
+      palette=colors;
+    }else if(contribMode==='vibes'){
+      level=Math.floor(Math.random()*5);
+      msg=vibesMessages[Math.floor(Math.random()*vibesMessages.length)];
+      palette=vibeColors;
+    }else if(contribMode==='heatmap'){
+      const week=Math.floor(i/7);
+      level=week%4===0?Math.floor(Math.random()*5):Math.floor(Math.random()*2);
+      msg='😭 '.repeat(level||1)+commitMessages[Math.floor(Math.random()*commitMessages.length)];
+      palette=regretColors;
+    }else{
+      const r=Math.random(),burst=Math.floor(i/7)%3===0;
+      level=burst&&r>.5?Math.floor(Math.random()*3)+2:r>.82?Math.floor(Math.random()*3)+1:0;
+      msg=level>0?commitMessages[Math.floor(Math.random()*commitMessages.length)]:'No commits (grass touched)';
+      palette=colors;
+    }
+    cell.style.background=palette[level];
+    cell.addEventListener('mouseenter',e=>{
+      const tt=document.getElementById('contrib-tooltip');
+      tt.innerHTML=`<span style="color:var(--green)">${level} contribution${level!==1?'s':''}</span><br>${msg}`;
+      tt.classList.add('show');
+    });
+    cell.addEventListener('mousemove',e=>{
+      const tt=document.getElementById('contrib-tooltip');
+      tt.style.left=(e.clientX+12)+'px';tt.style.top=(e.clientY-10)+'px';
+    });
+    cell.addEventListener('mouseleave',()=>document.getElementById('contrib-tooltip').classList.remove('show'));
+    grid.appendChild(cell);
+  }
+}
+
+/* ══════ COMMITS ══════ */
+const allCommits=[
+  {hash:'a1b2c3d',type:'hotfix',msg:'hotfix: production on fire. not metaphorically.',time:'2 min ago'},
+  {hash:'e4f5a6b',type:'fix',msg:'fix: found the bug. it was a missing semicolon. 7hrs wasted.',time:'1hr ago'},
+  {hash:'c7d8e9f',type:'feat',msg:'feat: added loading spinner that spins forever',time:'2hrs ago'},
+  {hash:'0a1b2c3',type:'chore',msg:'chore: REVERT of REVERT of REVERT — back to square one',time:'3hrs ago'},
+  {hash:'d4e5f6a',type:'feat',msg:'feat: AI wrote this entire component. I changed one variable name.',time:'4hrs ago'},
+  {hash:'b7c8d9e',type:'style',msg:'style: moved button 2px to the left. pushed to main.',time:'5hrs ago'},
+  {hash:'f0a1b2c',type:'fix',msg:'fix: removed console.logs (found 47 of them somehow)',time:'yesterday'},
+  {hash:'3d4e5f6',type:'feat',msg:'feat: dark mode (turns out everything was already dark)',time:'yesterday'},
+  {hash:'9e0f1a2',type:'hotfix',msg:'HOTFIX: accidentally deleted the database. it is fine.',time:'2 days ago'},
+  {hash:'b3c4d5e',type:'chore',msg:'chore: updated README. added one emoji. pushed.',time:'3 days ago'},
+  {hash:'f6a7b8c',type:'fix',msg:'fix: the bug was in the chair (me). replaced chair.',time:'4 days ago'},
+  {hash:'9d0e1f2',type:'feat',msg:'feat: added TODO comment — "TODO: fix this" (will not fix)',time:'5 days ago'},
+  {hash:'a3b4c5d',type:'style',msg:'style: spent 8hrs choosing between 14px and 15px font. chose 14.',time:'6 days ago'},
+  {hash:'e6f7a8b',type:'fix',msg:'fix: turned it off and on. it worked. no further questions.',time:'1 week ago'},
+  {hash:'c9d0e1f',type:'chore',msg:'initial commit (already 14,000 lines somehow)',time:'3 years ago'},
+];
+let shownCommits=8,commitFilter='all';
+function buildCommits(){
+  const list=document.getElementById('commitList');list.innerHTML='';
+  const filtered=commitFilter==='all'?allCommits:allCommits.filter(c=>c.type===commitFilter);
+  filtered.slice(0,shownCommits).forEach((c,i)=>{
+    const el=document.createElement('div');
+    el.className=`commit-item type-${c.type}`;el.style.animationDelay=(i*40)+'ms';
+    el.style.opacity='0';el.style.animation=`card-in .3s ${i*40}ms forwards`;
+    el.innerHTML=`<span class="ch">${c.hash}</span><span class="ctype ${c.type}">${c.type}</span><span class="cm">${c.msg}</span><span class="ct">${c.time}</span>`;
+    el.addEventListener('click',()=>showToast(`📋 ${c.hash}: ${c.msg.slice(0,50)}...`));
+    list.appendChild(el);
+  });
+}
+function filterCommits(f,btn){
+  commitFilter=f;shownCommits=8;
+  document.querySelectorAll('.cf-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');buildCommits();
+}
+function loadMoreCommits(){shownCommits+=5;buildCommits();showToast('Loaded more suffering. You asked for this.')}
+
+/* ══════ SKILLS ══════ */
+const skills=[
+  {name:'Stack Overflow',note:'my actual IDE',pct:97,color:'var(--orange)'},
+  {name:'JavaScript',note:'mostly works',pct:82,color:'#f0db4f'},
+  {name:'Copy-Pasting',note:'ctrl+c ctrl+v master',pct:99,color:'var(--green)'},
+  {name:'Git',note:'git push --force',pct:60,color:'#f34f29'},
+  {name:'CSS',note:'still centering divs',pct:40,color:'#264de4'},
+  {name:'TypeScript',note:'added : any everywhere',pct:55,color:'#3178c6'},
+  {name:'Docker',note:'works on my machine™',pct:35,color:'#0db7ed'},
+  {name:'Testing',note:'what is this',pct:2,color:'var(--text-dim)'},
+  {name:'Reading Docs',note:'haha, no',pct:5,color:'var(--red)'},
+  {name:'Blaming Others',note:'core competency',pct:100,color:'var(--purple)'},
+];
+function buildSkills(){
+  const g=document.getElementById('skillsGrid');
+  skills.forEach(s=>{
+    const d=document.createElement('div');d.className='skill-row';
+    d.innerHTML=`<div class="skill-top"><span class="skill-name">${s.name} <span class="skill-note">(${s.note})</span></span><span class="skill-pct">${s.pct}%</span></div><div class="skill-bar"><div class="skill-fill" data-w="${s.pct}" style="background:${s.color}"></div></div>`;
+    g.appendChild(d);
+  });
+  const obs=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{if(e.isIntersecting)e.target.querySelectorAll('.skill-fill').forEach(f=>{f.style.width=f.dataset.w+'%'})});
+  },{threshold:.2});
+  document.querySelectorAll('.skill-row').forEach(r=>obs.observe(r));
+}
+
+/* ══════ LANGUAGE CHART ══════ */
+const langs=[
+  {name:'JavaScript',pct:38,color:'#f0db4f'},
+  {name:'CSS Overrides',pct:22,color:'#264de4'},
+  {name:'Stack Overflow',pct:18,color:'#ff7216'},
+  {name:'TypeScript',pct:10,color:'#3178c6'},
+  {name:'Python',pct:7,color:'#3572a5'},
+  {name:'Rust (cope)',pct:3,color:'#dea584'},
+  {name:'Regret',pct:2,color:'#ff3355'},
+];
+function buildLangChart(){
+  const cv=document.getElementById('lang-canvas');
+  const ctx=cv.getContext('2d');
+  const cx=cv.width/2,cy=cv.height/2,r=65,inner=38;
+  let angle=-Math.PI/2,hover=-1;
+  function draw(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    let a=angle;
+    langs.forEach((l,i)=>{
+      const slice=l.pct/100*Math.PI*2;
+      ctx.beginPath();ctx.moveTo(cx,cy);
+      ctx.arc(cx,cy,hover===i?r+6:r,a,a+slice);
+      ctx.closePath();ctx.fillStyle=l.color;ctx.fill();
+      ctx.strokeStyle=hover===i?'#fff':cv.style.background||'#080c10';
+      ctx.lineWidth=hover===i?2:1.5;ctx.stroke();
+      a+=slice;
+    });
+    // donut hole
+    ctx.beginPath();ctx.arc(cx,cy,inner,0,Math.PI*2);
+    ctx.fillStyle='#080c10';ctx.fill();
+    // center text
+    if(hover>=0){
+      ctx.fillStyle=langs[hover].color;ctx.font='bold 10px Share Tech Mono';
+      ctx.textAlign='center';ctx.fillText(langs[hover].name,cx,cy-4);
+      ctx.fillStyle='#fff';ctx.font='12px Orbitron';
+      ctx.fillText(langs[hover].pct+'%',cx,cy+12);
+    }else{
+      ctx.fillStyle='var(--text-dim)';ctx.font='9px Share Tech Mono';
+      ctx.textAlign='center';ctx.fillText('LANGUAGES',cx,cy-4);
+      ctx.fillStyle=langs[0].color;ctx.font='bold 11px Orbitron';
+      ctx.fillText('7 types',cx,cy+10);
+    }
+  }
+  cv.addEventListener('mousemove',e=>{
+    const rect=cv.getBoundingClientRect();
+    const dx=e.clientX-rect.left-cx,dy=e.clientY-rect.top-cy;
+    const dist=Math.sqrt(dx*dx+dy*dy);
+    if(dist<inner||dist>r+8){hover=-1;draw();return}
+    let ang=Math.atan2(dy,dx)-angle;
+    while(ang<0)ang+=Math.PI*2;
+    let a=0;hover=-1;
+    langs.forEach((l,i)=>{const s=l.pct/100*Math.PI*2;if(ang>=a&&ang<a+s)hover=i;a+=s});
+    draw();
+  });
+  cv.addEventListener('mouseleave',()=>{hover=-1;draw()});
+  draw();
+  // legend
+  const leg=document.getElementById('langLegend');
+  langs.forEach(l=>{
+    const d=document.createElement('div');d.className='lang-item';
+    d.innerHTML=`<div class="lang-dot-big" style="background:${l.color}"></div><span class="lang-name">${l.name}</span><span class="lang-pct">${l.pct}%</span>`;
+    leg.appendChild(d);
+  });
+}
+
+/* ══════ ACHIEVEMENTS ══════ */
+const achieves=[
+  {icon:'🔥',name:'First Blood',desc:'Pushed to main on day 1',locked:false},
+  {icon:'💀',name:'YOLO Deployer',desc:'Deployed to prod on a Friday',locked:false},
+  {icon:'☕',name:'Caffeine Addict',desc:'Committed after midnight 100 times',locked:false},
+  {icon:'🕵️',name:'The Ostrich',desc:'Closed 50 issues as "wontfix"',locked:false},
+  {icon:'🦆',name:'Rubber Duck',desc:'Talked to the duck for 3 hours',locked:false},
+  {icon:'🌪️',name:'rm -rf expert',desc:'Deleted node_modules 200 times',locked:false},
+  {icon:'🤡',name:'Type: any',desc:'Used "any" in TS 847 times',locked:false},
+  {icon:'🚒',name:'Firefighter',desc:'Merged a hotfix during standup',locked:false},
+  {icon:'🏳️',name:'Documentation',desc:'Actually write a README',locked:true},
+  {icon:'🧪',name:'Test Writer',desc:'Write a real test',locked:true},
+  {icon:'📖',name:'RTFM',desc:'Read actual documentation',locked:true},
+  {icon:'😴',name:'Balanced Dev',desc:'Close laptop before midnight',locked:true},
+];
+function buildAchievements(){
+  const g=document.getElementById('achieveGrid');
+  achieves.forEach(a=>{
+    const d=document.createElement('div');
+    d.className='achieve-card'+(a.locked?' locked':'');
+    d.innerHTML=`<div class="shine"></div><span class="achieve-icon">${a.locked?'🔒':a.icon}</span><div class="achieve-name">${a.name}</div><div class="achieve-desc">${a.desc}</div>`;
+    if(!a.locked)d.addEventListener('click',()=>showToast(`🏅 "${a.name}" — ${a.desc}`));
+    else d.addEventListener('click',()=>showToast(`🔒 "${a.name}" — Achievement locked. Skill issue.`));
+    g.appendChild(d);
+  });
+}
+
+/* ══════ README PROGRESS ══════ */
+const readmeProgs=[
+  {label:'Being productive',val:12},
+  {label:'Having fun',val:94},
+  {label:'Technical debt',val:100},
+  {label:'Imposter syndrome',val:87},
+  {label:'Coffee dependency',val:100},
+  {label:'Work-life balance',val:3},
+];
+function buildReadmeProgs(){
+  const w=document.getElementById('readme-progs');
+  readmeProgs.forEach(p=>{
+    const d=document.createElement('div');d.className='readme-prog';
+    d.innerHTML=`<span class="rp-label">${p.label}</span><div class="rp-bar"><div class="rp-fill" data-w="${p.val}" style="width:0"></div></div><span class="rp-val">${p.val}%</span>`;
+    w.appendChild(d);
+  });
+  const obs=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{if(e.isIntersecting)e.target.querySelectorAll('.rp-fill').forEach(f=>{f.style.width=f.dataset.w+'%'})});
+  },{threshold:.2});
+  obs.observe(w);
+}
+
+/* ══════ TERMINAL ══════ */
+const termCmds={
+  help:()=>['Available commands:','  whoami       — who am I, really?','  skills       — list real skills','  git log      — recent commits','  git status   — current status','  npm install  — install suffering','  ls           — list files','  cat README   — read the README','  sudo         — escalate problems','  coffee       — important','  clear        — clear terminal','  secret       — 🤫'],
+  whoami:()=>['xX_CodeLord9000_Xx','Role: Professional Bug Creator','Location: Somewhere dark (no, darker)','Stack: Whatever works (nothing works)'],
+  skills:()=>['Skill breakdown:','  StackOverflow  ████████████ 97%','  Copy-paste     ████████████ 99%','  CSS            ████░░░░░░░░ 40%','  Testing        ░░░░░░░░░░░░  2%','  Blaming others ████████████100%'],
+  'git log':()=>allCommits.slice(0,5).map(c=>`${c.hash} ${c.msg}`),
+  'git status':()=>['On branch main','Changes not staged for commit:','  modified: everything.js','  modified: definitely_not_production.env','Untracked files:','  node_modules/ (852mb, again)','','no tests added, no tests will be added'],
+  'npm install':()=>['npm WARN deprecated everything@∞.0.0','npm WARN peer dep missing: sanity@latest','added 84,712 packages (2 of them useful)','found 847 vulnerabilities (ignoring all)','','Happy coding! (lol)'],
+  ls:()=>['total 9999','drwxr-xr-x  todo-app-v47/','drwxr-xr-x  todo-app-v48/ (same thing)','drwxr-xr-x  node_modules/ (852mb)','drwxr-xr-x  definitely-not-passwords/','drwxr-xr-x  IMPORTANT_FINAL_FINAL_v3/','lrw-r--r--  .env -> EXPOSED_TO_PUBLIC','-rw-r--r--  README.md (4 lines)'],
+  'cat README':()=>['# xX_CodeLord9000_Xx','','TODO: write README','TODO: write TODO about writing README','TODO: stop writing TODOs'],
+  sudo:()=>['[sudo] password for CodeLord:','Sorry, try again.','[sudo] password for CodeLord:','Sorry, try again.','[sudo] password for CodeLord:','sudo: 3 incorrect password attempts','sudo: please just try Stack Overflow'],
+  coffee:()=>['Brewing coffee...','☕ Coffee ready.','Status: CRITICALLY LOW','Warning: Developer may become irritable','Warning: Developer may become more irritable','Warning: All production changes may occur'],
+  secret:()=>['You found it.','','This whole profile is a cry for help.','','Please send coffee, and maybe a rubber duck.','','Also yes I know about the password file.'],
+  clear:()=>'CLEAR',
+};
+function initTerminal(){
+  const body=document.getElementById('termBody');
+  const input=document.getElementById('term-input');
+  function addLine(prompt,cmd,outputs,isErr){
+    if(prompt){const l=document.createElement('div');l.className='term-line';l.innerHTML=`<span class="term-prompt">CodeLord@github:~$</span><span class="term-cmd"> ${cmd}</span>`;body.appendChild(l)}
+    if(outputs)outputs.forEach(o=>{const l=document.createElement('div');l.className='term-out'+(isErr?' err':'');l.textContent=o;body.appendChild(l)});
+    body.scrollTop=body.scrollHeight;
+  }
+  // welcome
+  addLine(false,null,['Welcome to xX_CodeLord9000_Xx\'s terminal.','Type "help" for available commands.','Warning: Commands may cause existential dread.']);
+  input.addEventListener('keydown',e=>{
+    if(e.key!=='Enter')return;
+    const cmd=input.value.trim().toLowerCase();input.value='';
+    if(!cmd)return;
+    addLine(true,cmd,null,false);
+    if(cmd in termCmds){
+      const result=termCmds[cmd]();
+      if(result==='CLEAR'){body.innerHTML=''}
+      else addLine(false,null,result,false);
+    }else{
+      addLine(false,null,[`bash: ${cmd}: command not found`,'(Have you tried Stack Overflow?)'],true);
+    }
+  });
+}
+
+/* ══════ ROAST MACHINE ══════ */
+const roasts=[
+  "I've reviewed your code and I have one question: did you write this while crying? Because it reads like someone was definitely crying. The variable names alone (`x`, `xx`, `xxx`, `finalX`, `finalXActual`) tell a story of pain I wasn't prepared for.",
+  "Your code has three nested ternary operators inside a forEach inside a useEffect inside a useEffect. I showed this to my training data and it asked for therapy. That's impressive in the worst way.",
+  "I see you left 47 `console.log('test')` lines in production. Bold strategy. I also notice you named a function `doTheThing`. Which thing? We may never know. The function certainly doesn't.",
+  "Your commit message 'fixed stuff' is technically accurate. It's also technically the least useful thing ever written. Somewhere a future developer is reading that and crying. That developer is you, in 3 months.",
+  "I found a comment that says `// TODO: fix later`. The git blame shows this was written in 2019. Bold definition of 'later'. I respect the commitment to procrastination more than the code itself.",
+  "I want to be honest with you. This is the first codebase where I've seen someone use `any` in TypeScript 847 times and then write `// TypeScript is great` in the README. That's performance art.",
+];
+const praises=[
+  "Your README has an emoji. That shows personality! Most of your code doesn't have that. The emoji, I mean. Or personality. But the emoji is there and that's... something.",
+  "You actually committed today! Even if the message was 'asdf' and it only changed a whitespace character, motion is motion. Momentum is momentum. You showed up. The div still isn't centered, but you showed up.",
+  "I genuinely admire that you have not given up. Any lesser developer would have walked away from `fix-css-please-god` years ago. You are still there. Still trying. Still failing. But still trying. That's beautiful.",
+];
+const advice=[
+  "Step 1: Write tests. Step 2: I know, I know. But seriously. Even one. Step 3: Name your variables something other than `x`, `data`, or `thing`. Step 4: Sleep. You cannot center a div at 3am. No one can.",
+  "My professional recommendation: close all 47 Stack Overflow tabs, open the documentation for the library you're using, read it for 10 minutes, and then open Stack Overflow again because the docs are terrible. At least now you tried.",
+  "Here is my advice: the bug is always where you're not looking. You've checked everywhere except the thing that's obviously wrong. Look at that one obvious thing. Yes. That one. I'll wait.",
+];
+let isRoasting=false;
+function showRoastText(texts){
+  if(isRoasting)return;isRoasting=true;
+  const textEl=document.getElementById('roast-text');
+  const typing=document.getElementById('roast-typing');
+  textEl.textContent='';typing.classList.add('show');
+  setTimeout(()=>{
+    typing.classList.remove('show');
+    const t=texts[Math.floor(Math.random()*texts.length)];
+    let i=0;textEl.textContent='';
+    const interval=setInterval(()=>{
+      textEl.textContent+=t[i++];
+      if(i>=t.length){clearInterval(interval);isRoasting=false}
+    },18);
+  },1400);
+}
+function getRoast(){showRoastText(roasts)}
+function getPraise(){showRoastText(praises)}
+function getAdvice(){showRoastText(advice)}
+
+/* ══════ AVATAR EASTER EGG ══════ */
+const avatarEmojis=['🧑‍💻','😭','🤡','👾','🦆','☕','🥲','💀','🤖','🧠','🫠','🪲','🔥','😤','🎯'];
+const avatarMsgs=['Toggling between dark mode and darker mood','It\'s not a bug, it\'s a feature™','git commit -m "fixed stuff"','Rubber duck debugging activated 🦆','Works on my machine™ (machine: on fire)','Coffee intake: CRITICAL','Achievements unlocked: none today','stack overflow as a service','AI: "I cannot help with that." Me: "same"','Brain.exe has stopped responding','Just ship it™','bug.exe detected in mirror','🔥 everything is fine 🔥','npm run build — failed','Achievement: closed laptop before 2am (locked)'];
+let eidx=0,clickCount=0,xpTotal=0;
+function clickAvatar(){
+  eidx=(eidx+1)%avatarEmojis.length;clickCount++;xpTotal+=Math.floor(Math.random()*50)+10;
+  document.getElementById('avatarInner').textContent=avatarEmojis[eidx];
+  document.getElementById('avatarLevel').textContent='LVL '+Math.floor(xpTotal/100+1);
+  showToast(avatarMsgs[eidx]);
+  // particle burst
+  for(let i=0;i<12;i++){
+    const p=document.createElement('div');
+    p.style.cssText=`position:fixed;width:6px;height:6px;border-radius:50%;background:var(--green);z-index:9999;pointer-events:none;left:${event.clientX}px;top:${event.clientY}px;transition:all .8s ease;`;
+    document.body.appendChild(p);
+    const angle=(i/12)*Math.PI*2,dist=80+Math.random()*60;
+    setTimeout(()=>{p.style.left=(event.clientX+Math.cos(angle)*dist)+'px';p.style.top=(event.clientY+Math.sin(angle)*dist)+'px';p.style.opacity='0';},10);
+    setTimeout(()=>p.remove(),900);
+  }
+}
+
+/* ══════ MODALS ══════ */
+const modalContent={
+  followers:{title:'Your 3 Followers',body:'<p><b>follower_1:</b> <span class="modal-hl">dependabot</span> (a bot. it doesn\'t love you)</p><p><b>follower_2:</b> <span class="modal-hl">your-alt-account</span></p><p><b>follower_3:</b> <span class="modal-hl">probably a scraper</span> harvesting your email</p>'},
+  following:{title:'847 People You\'re Stalking',body:'<p>You follow 847 developers more successful than you. Every morning you check if they committed. Every morning you feel bad. This is called <span class="modal-hl">inspiration</span>.</p>'},
+  commits:{title:'2,391 Commits',body:`<p>That's <span class="modal-hl">2,391 git push</span> events. Of those:</p><p>• ~400 were "fix typo"</p><p>• ~200 were "fix fix"</p><p>• ~180 were "asdf" or similar</p><p>• 1 was documented properly (by accident)</p><p>• 0 tests were added in any of them</p>`},
+  tests:{title:'0 Tests Written',body:'<p>Zero. Not one. In 3 years of coding. Zero tests.</p><p>When asked, you say <span class="modal-hl">"I test it manually"</span>. The prod outage of 2023 was also manual testing.</p>'},
+  coffee:{title:'9,999ml Coffee/Day',body:'<p>That\'s approximately <span class="modal-hl">10 litres</span> of coffee per day. Medical experts say this is "concerning". Your CI/CD pipeline says this is "necessary". Production agrees with your pipeline.</p>'},
+};
+function showModal(id){
+  const m=modalContent[id];if(!m)return;
+  document.getElementById('modal-title').textContent=m.title;
+  document.getElementById('modal-body').innerHTML=m.body;
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function closeModal(e){
+  if(e&&e.target!==document.getElementById('modal-overlay'))return;
+  document.getElementById('modal-overlay').classList.remove('open');
+}
+
+/* ══════ NOTIFICATIONS ══════ */
+function toggleNotif(){
+  document.getElementById('notif-dropdown').classList.toggle('open');
+}
+document.addEventListener('click',e=>{
+  if(!e.target.closest('#notif-bell')&&!e.target.closest('#notif-dropdown'))
+    document.getElementById('notif-dropdown').classList.remove('open');
+});
+
+/* ══════ THEME ══════ */
+function toggleTheme(){
+  document.body.classList.toggle('light-mode');
+  document.getElementById('theme-btn').textContent=document.body.classList.contains('light-mode')?'🌙':'☀️';
+  showToast(document.body.classList.contains('light-mode')?'☀️ Light mode. Your eyes deserve this.':'🌙 Darkness restored. As it should be.');
+}
+
+/* ══════ SCROLL NAV ══════ */
+function scrollTo(sel){document.querySelector(sel)?.scrollIntoView({behavior:'smooth'})}
+
+/* ══════ TOAST ══════ */
+let toastTimer;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+/* ══════ KONAMI ══════ */
+const konamiCode=['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+let kp=0;
+document.addEventListener('keydown',e=>{
+  if(e.key===konamiCode[kp])kp++;else kp=0;
+  if(kp===konamiCode.length){
+    kp=0;
+    document.body.style.transition='filter 0.5s';
+    document.body.style.filter='hue-rotate(180deg) saturate(1.5)';
+    showToast('🎮 KONAMI CODE! Achievement: "Secret Finder" — You still have 0 tests.');
+    setTimeout(()=>{document.body.style.filter=''},5000);
+  }
+});
+
+/* ══════ CONSOLE EASTER EGG ══════ */
+console.log('%c\n██████╗ ██████╗ ██╗   ██╗\n██╔════╝██╔═══██╗██║   ██║\n██║     ██║   ██║██║   ██║\n██║     ██║   ██║██║   ██║\n╚██████╗╚██████╔╝╚██████╔╝\n ╚═════╝ ╚═════╝  ╚═════╝','color:#00ff88;font-family:monospace;font-size:10px');
+console.log('%c👾 You opened DevTools. Respect. Also, please hire me.','color:#00d4ff;font-size:14px;font-family:monospace');
+console.log('%cThis was made by xX_CodeLord9000_Xx.','color:#aaa;font-family:monospace');
+console.log('%cTests written: 0. Bugs filed: ∞. Coffee consumed: yes.','color:#ffcc00;font-family:monospace');
+console.log('%cKonami code works. Just saying.','color:#bb66ff;font-size:11px;font-family:monospace');
+</script>
+</body>
+</html>
